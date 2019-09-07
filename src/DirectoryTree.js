@@ -8,28 +8,36 @@ import folderIcon from './assets/folder.svg'
 import arrowUp from './assets/arrowUp.svg'
 import arrowDown from './assets/arrowDown.svg'
 
-import styles from './DirectoryTree.css'
+import styles      from './DirectoryTree.css'
+import ContextMenu from './ContextMenu'
+import Modal from './shared/Modal'
+
+import addNode from './utils/addNode'
 
 
+//TODO: separate functions for render nodes, separate components from context menu
+//TODO: not to save dirstructure in state?
 export default class DirectoryTree extends React.PureComponent {
     state = {
         dirStructure: null,
         expandedDirs: [],
         contextMenu: {
             isOpen: false,
-            clientX: null,
-            clientY: null
+            pageX: null,
+            pageY: null
         },
         editedNodeName: '',
-        editedNodePath: ''
+        editedNodeDirPath: '',
+        modal: {
+            isOpen: false,
+            mode: 'directory',
+        },
+        newFileType: '',
+        newNodeName: ''
     }
-    
-    contextMenu = null
     
     async componentDidMount() {
         const dirStructure = await fetchDirectoryStructure();
-        
-        console.log(dirStructure)
         
         this.setState(() => ({ dirStructure }))
     }
@@ -65,7 +73,10 @@ export default class DirectoryTree extends React.PureComponent {
                     style={{ marginLeft: level*10 }}
                     key={`nodeswrapper${path}`}
                 >
-                    {structure.map(node => this.renderDirStructure(node, level + 1, path))}
+                    {structure.map((node, index) => {
+                        const nodePath = `${path}${index}/`
+                        return this.renderDirStructure(node, level + 1, nodePath)
+                    })}
                 </div>
             )
             tree.push(treePart)
@@ -131,21 +142,56 @@ export default class DirectoryTree extends React.PureComponent {
         )
     }
     
-    renderContextMenu = (clientX, clientY) => {
-        return <div ref={(el) => this.contextMenu = el}>Context</div>
+    renderModalHeader = (modalData) => {
+        const { mode, fileType } = modalData;
+        
+        return mode === 'directory'
+           ? (
+                <div>
+                    New directory
+                </div>
+            )
+           : (
+               <div>
+                   {fileType ? `New ${fileType} file` : 'New file'}
+               </div>
+            )
     }
     
-    hideContextMenu = () => {
-        this.setState(() => ({
-            contextMenu: {
-                isOpen: false,
-                clientX: null,
-                clientY: null
-            },
-            editedNodeName: '',
-            editedNodePath: ''
-            })
+    renderModalFooter = (modalData) => {
+        return (
+           <div>
+               <button
+                   onClick={this.handleCreateNode}
+               >
+                   Ok
+               </button>
+                <button>
+                    Cancel
+                </button>
+           </div>
         )
+    }
+    
+    
+    handleCreateNode = () => {
+        const { editedDirName, editedNodeDirPath, modal : { mode }, newNodeName, newFileType } = this.state;
+        
+        const extension = newFileType ? `.${newFileType}`  : '';
+        const nodeFullName = `${newNodeName}${extension}`
+        
+        const nodeDirPathArr = editedNodeDirPath.split('/').filter(item => item);
+        
+        this.setState((prevState) => {
+            console.log('nodeDirPathArr', nodeDirPathArr)
+            let dirStructure = JSON.parse(JSON.stringify(prevState.dirStructure))
+            
+            dirStructure = addNode(nodeDirPathArr, dirStructure, nodeFullName)
+            console.log('dirStructure SET', nodeDirPathArr, dirStructure)
+            
+            return { dirStructure }
+        })
+        
     }
     
     handleCollapse = (nodePath) => {
@@ -159,36 +205,84 @@ export default class DirectoryTree extends React.PureComponent {
         this.setState((prevState) => ({ expandedDirs: [ ...prevState.expandedDirs, nodePath ] }))
     }
     
-    handleContextMenuOpen = (e, nodePath, nodeName) => {
+    handleContextMenuOpen = (e, nodeDirPath, nodeName) => {
         e.persist()
         e.preventDefault()
-        const { clientX, clientY } = e;
+        const { pageX, pageY } = e;
         console.log('EEE', e)
         this.setState(() => ({
             contextMenu: {
                 isOpen: true,
-                clientX,
-                clientY
+                pageX,
+                pageY
             },
             editedNodeName: nodeName,
-            editedNodePath: nodePath
+            editedNodeDirPath: nodeDirPath
         }));
-    
-        document.addEventListener('click', this.handleDocumentClick);
     }
     
-    handleDocumentClick = (event) => {
-        if (!this.contextMenu.contains(event.target)) {
-            this.hideContextMenu();
-            document.removeEventListener('click', this.handleDocumentClick);
-        }
+    handleContextMenuClose = () => {
+        this.setState(() => ({
+                contextMenu: {
+                    isOpen: false,
+                    pageX: null,
+                    pageY: null
+                },
+                editedNodeName: '',
+                editedNodePath: ''
+            })
+        )
+    }
+    
+    handleOpenNewDirectoryModal = () => {
+        this.setState(() => ({
+            modal: {
+                isOpen: true,
+                mode: 'directory'
+            }
+        }))
+    }
+    
+    handleOpenNewFileModal = (newFileType = '') => {
+        this.setState(() => ({
+            modal: {
+                isOpen: true,
+                mode: 'file'
+            },
+            newFileType
+        }))
+    }
+    
+    handleNewNodeNameChange = (e) => {
+        const name = e.target.value;
+        
+        this.setState(() => ({ newNodeName: name }))
     }
     
     render() {
+        const {modal, contextMenu} = this.state;
+        
         return (
-            <div>
+            <div className={styles.DirectoryTreeWrapper}>
                 {this.renderDirStructure(this.state.dirStructure)}
-                {this.state.contextMenu.isOpen && this.renderContextMenu()}
+                <ContextMenu
+                    isOpen={contextMenu.isOpen}
+                    pageX={contextMenu.pageX}
+                    pageY={contextMenu.pageY}
+                    onClose={this.handleContextMenuClose}
+                    onNewDirectory={this.handleOpenNewDirectoryModal}
+                    onNewFile={this.handleOpenNewFileModal}
+                />
+                <Modal
+                    isOpen={modal.isOpen}
+                    header={this.renderModalHeader(this.state.modal)}
+                    footer={this.renderModalFooter(this.state.modal)}
+                >
+                    <input
+                        type="text"
+                        onChange={this.handleNewNodeNameChange}
+                    />
+                </Modal>
             </div>
         )
     }
