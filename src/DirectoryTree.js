@@ -25,7 +25,7 @@ export default class DirectoryTree extends React.PureComponent {
         this.setState(() => ({ dirStructure }))
     }
     
-    renderDirStructure = (structure, level = 0, parentDir = '') => {
+    renderDirStructure = (structure, level = 0, path = '/') => {
         if (!structure) return (
             <div>
                 No directory tree
@@ -33,12 +33,13 @@ export default class DirectoryTree extends React.PureComponent {
         )
         if (typeof structure === 'string') {
             const extension = structure.split('.').reverse()[0]
+            const nodePath = `${path}${structure}`
             
             return (
                 <div
                     className={styles.EndNode}
                     style={{ marginLeft: level*10 }}
-                    key={`endnode${structure}${level}`}
+                    key={nodePath}
                 >
                     {<img src={require(`./assets/${ExtensionToIcon(extension)}`)} alt="" />}
                     {structure}
@@ -53,38 +54,41 @@ export default class DirectoryTree extends React.PureComponent {
                 <div
                     className={styles.DirectoryNodes}
                     style={{ marginLeft: level*10 }}
-                    key={`nodeswrapper${parentDir}`}
+                    key={`nodeswrapper${path}`}
                 >
-                    {structure.map(node => this.renderDirStructure(node, level + 1, parentDir))}
+                    {structure.map(node => this.renderDirStructure(node, level + 1, path))}
                 </div>
             )
             tree.push(treePart)
         } else {
             for(const dirName in structure) {
                 const subDir = structure[dirName]
+                const nodePath = `${path}${dirName}/`
                 
-                const isDirExpanded = Boolean(this.state.expandedDirs.find(expandedItem => {
-                    return expandedItem.dirName === dirName && expandedItem.level === level
+                const isDirExpanded = Boolean(this.state.expandedDirs.find(expandedNodePath => {
+                    return expandedNodePath === nodePath
                 }))
         
                 const treePart =  (
-                    <div key={`dir${dirName}${level}`}>
+                    <div key={nodePath}>
                         <div
                             className={styles.Directory}
                             style={{ marginLeft: level*10 }}
                         >
                             {isDirExpanded
-                             ? this.renderCollapseSign(dirName, level)
-                             : this.renderExpandSign(dirName, level)}
+                             ? this.renderCollapseSign(nodePath, level)
+                             : this.renderExpandSign(nodePath, level)}
                              
                             {<img src={folderIcon} alt="" />}
 
-                            <div>
+                            <div
+                                onContextMenu={(e) => this.handleContextMenuOpen(e, nodePath, dirName)}
+                            >
                                 {dirName}
                             </div>
                         </div>
                         {isDirExpanded
-                         ? this.renderDirStructure(subDir, level + 1, dirName)
+                         ? this.renderDirStructure(subDir, level + 1, nodePath)
                          : null}
                     </div>
                 )
@@ -96,40 +100,59 @@ export default class DirectoryTree extends React.PureComponent {
         return tree;
     }
     
-    renderCollapseSign = (dirName, level) => {
+    renderCollapseSign = (nodePath) => {
         return (
             <img
                 src={arrowUp}
                 alt='Collapse'
                 title='Collapse'
-                onClick={() => this.handleCollapse(dirName, level)}
+                onClick={() => this.handleCollapse(nodePath)}
             />
         )
     }
     
-    renderExpandSign = (dirName, level) => {
+    renderExpandSign = (nodePath) => {
         return (
             <img
                 src={arrowDown}
                 alt='Expand'
                 title='Expand'
-                onClick={() => this.handleExpand(dirName, level)}
+                onClick={() => this.handleExpand(nodePath)}
             />
         )
     }
-
     
-    handleCollapse = (dirName, level) => {
-        const nextExpandedDirs = this.state.expandedDirs.filter(expandedItem => {
-            return !(expandedItem.dirName === dirName && expandedItem.level === level)
+    renderContextMenu = (clientX, clientY) => {
+        return <div>Context</div>
+    }
+    
+    handleCollapse = (nodePath) => {
+        const nextExpandedDirs = this.state.expandedDirs.filter(expandedNodePath => {
+            return !expandedNodePath.includes(nodePath)
         })
         this.setState(() => ({ expandedDirs: nextExpandedDirs }))
     }
     
-    handleExpand = (dirName, level) => {
-        this.setState((prevState) => ({ expandedDirs: [ ...prevState.expandedDirs, { dirName, level } ] }))
+    handleExpand = (nodePath) => {
+        this.setState((prevState) => ({ expandedDirs: [ ...prevState.expandedDirs, nodePath ] }))
     }
-
+    
+    handleContextMenuOpen = (e, nodePath, dirName) => {
+        e.persist()
+        e.preventDefault()
+        const { clientX, clientY } = e;
+        console.log('EEE', e)
+        this.setState(() => ({
+            contextMenu: {
+                isVisible: true,
+                clientX,
+                clientY
+            },
+            editedDirName: dirName,
+            editedDirPath: nodePath
+        }));
+        
+    }
     
     render() {
         return (
