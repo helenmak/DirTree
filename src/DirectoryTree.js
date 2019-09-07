@@ -14,8 +14,17 @@ import styles from './DirectoryTree.css'
 export default class DirectoryTree extends React.PureComponent {
     state = {
         dirStructure: null,
-        expandedDirs: []
+        expandedDirs: [],
+        contextMenu: {
+            isOpen: false,
+            clientX: null,
+            clientY: null
+        },
+        editedNodeName: '',
+        editedNodePath: ''
     }
+    
+    contextMenu = null
     
     async componentDidMount() {
         const dirStructure = await fetchDirectoryStructure();
@@ -123,7 +132,20 @@ export default class DirectoryTree extends React.PureComponent {
     }
     
     renderContextMenu = (clientX, clientY) => {
-        return <div>Context</div>
+        return <div ref={(el) => this.contextMenu = el}>Context</div>
+    }
+    
+    hideContextMenu = () => {
+        this.setState(() => ({
+            contextMenu: {
+                isOpen: false,
+                clientX: null,
+                clientY: null
+            },
+            editedNodeName: '',
+            editedNodePath: ''
+            })
+        )
     }
     
     handleCollapse = (nodePath) => {
@@ -137,27 +159,36 @@ export default class DirectoryTree extends React.PureComponent {
         this.setState((prevState) => ({ expandedDirs: [ ...prevState.expandedDirs, nodePath ] }))
     }
     
-    handleContextMenuOpen = (e, nodePath, dirName) => {
+    handleContextMenuOpen = (e, nodePath, nodeName) => {
         e.persist()
         e.preventDefault()
         const { clientX, clientY } = e;
         console.log('EEE', e)
         this.setState(() => ({
             contextMenu: {
-                isVisible: true,
+                isOpen: true,
                 clientX,
                 clientY
             },
-            editedDirName: dirName,
-            editedDirPath: nodePath
+            editedNodeName: nodeName,
+            editedNodePath: nodePath
         }));
-        
+    
+        document.addEventListener('click', this.handleDocumentClick);
+    }
+    
+    handleDocumentClick = (event) => {
+        if (!this.contextMenu.contains(event.target)) {
+            this.hideContextMenu();
+            document.removeEventListener('click', this.handleDocumentClick);
+        }
     }
     
     render() {
         return (
             <div>
                 {this.renderDirStructure(this.state.dirStructure)}
+                {this.state.contextMenu.isOpen && this.renderContextMenu()}
             </div>
         )
     }
