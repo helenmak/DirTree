@@ -4,17 +4,20 @@ export default function addNode(path = [], obj = {}, val) {
     if (Array.isArray(obj)) {
         if (path[1]) {
             const newPath = path.slice(1)
-            newObj[path[0]] = set(newPath, obj[path[0]], val)
-            console.log('path1')
+            newObj[path[0]] = addNode(newPath, obj[path[0]], val)
         } else {
             newObj[path[0]] = [ ...obj[path[0]], val ]
         }
     } else {
         if (path[1]) {
             const newPath = path.slice(1)
-            newObj = {...obj, [path[0]]: set(newPath, obj[path[0]], val)}
+            newObj = {...obj, [path[0]]: addNode(newPath, obj[path[0]], val)}
         } else {
-            newObj = {...obj, [path[0]]: [ ...obj[path[0]], val ]}
+            if (Array.isArray(obj[path[0]])) {
+                newObj = {...obj, [path[0]]: [ ...obj[path[0]], val ]}
+            } else {
+                newObj = {...obj, [path[0]]: { ...obj[path[0]], [val]: [] } }
+            }
         }
     }
     

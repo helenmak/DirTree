@@ -12,7 +12,8 @@ import styles      from './DirectoryTree.css'
 import ContextMenu from './ContextMenu'
 import Modal from './shared/Modal'
 
-import addNode from './utils/addNode'
+import addNode        from './utils/addNode'
+import checkNodeExist from './utils/checkNodeExist'
 
 
 //TODO: separate functions for render nodes, separate components from context menu
@@ -183,11 +184,14 @@ export default class DirectoryTree extends React.PureComponent {
         const nodeDirPathArr = editedNodeDirPath.split('/').filter(item => item);
         
         this.setState((prevState) => {
-            console.log('nodeDirPathArr', nodeDirPathArr)
             let dirStructure = JSON.parse(JSON.stringify(prevState.dirStructure))
             
-            dirStructure = addNode(nodeDirPathArr, dirStructure, nodeFullName)
-            console.log('dirStructure SET', nodeDirPathArr, dirStructure)
+            const nodeExist = checkNodeExist(nodeDirPathArr, dirStructure, nodeFullName)
+            if (!nodeExist) {
+                dirStructure = addNode(nodeDirPathArr, dirStructure, nodeFullName)
+            } else {
+                alert(`Node ${nodeFullName} exists`)
+            }
             
             return { dirStructure }
         })
