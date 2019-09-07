@@ -1,0 +1,10 @@
+.EndNode {
+}
+
+.Directory {
+    display: flex;
+}
+
+.DirectoryNodes {
+    border: 2px solid red;
+}
