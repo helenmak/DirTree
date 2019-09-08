@@ -2,13 +2,21 @@
     position: relative;
 }
 
-.EndNode {
-}
-
-.Directory {
+.DirectoryWrapper, .FileWrapper {
     display: flex;
+    align-items: center;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
-.DirectoryNodes {
-    border: 2px solid red;
+.DirectoryName, .FileName {
+    margin-left: 3px;
+}
+
+.DirectoryIcon, .FileIcon {
+    height: 20px;
+}
+
+.ExpandIcon, .CollapseIcon {
+    padding-right: 5px;
 }

@@ -1,16 +1,14 @@
 import React from 'react'
 
-import './App.css'
-
 import DirectoryTree from './DirectoryTree'
+
+import styles from './App.css'
 
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <DirectoryTree></DirectoryTree>
-      </header>
+    <div className={styles.App}>
+        <DirectoryTree />
     </div>
   );
 }

@@ -25,7 +25,6 @@ import nodesSorter      from './utils/nodesSorter'
 import styles           from './DirectoryTree.css'
 
 
-
 //TODO: separate functions for render nodes, separate components from context menu
 //TODO: not to save dirstructure in state?
 export default class DirectoryTree extends React.PureComponent {
@@ -63,13 +62,20 @@ export default class DirectoryTree extends React.PureComponent {
             
             return (
                 <div
-                    className={styles.EndNode}
+                    className={styles.FileWrapper}
                     style={{ marginLeft: level*10 }}
                     key={nodePath}
                     onContextMenu={(e) => this.handleContextMenuOpen(e, path, structure, isDir)}
                 >
-                    {<img src={require(`./assets/${ExtensionToIcon(extension)}`)} alt="" />}
-                    {structure}
+                    <img
+                        className={styles.FileIcon}
+                        src={require(`./assets/${ExtensionToIcon(extension)}`)}
+                        alt=""
+                    />
+                    
+                    <div className={styles.FileName}>
+                        {structure}
+                    </div>
                 </div>
             )
         }
@@ -92,6 +98,7 @@ export default class DirectoryTree extends React.PureComponent {
             tree.push(treePart)
         } else {
             for(const dirName in structure) {
+                if (!structure.hasOwnProperty(dirName)) continue;
                 const subDir = structure[dirName]
                 const nodePath = `${path}${dirName}/`
                 
@@ -104,24 +111,29 @@ export default class DirectoryTree extends React.PureComponent {
                 const treePart =  (
                     <div key={nodePath}>
                         <div
-                            className={styles.Directory}
+                            className={styles.DirectoryWrapper}
                             style={{ marginLeft: level*10 }}
+                            onContextMenu={(e) => this.handleContextMenuOpen(e, nodePath, dirName, isDir)}
                         >
                             {isDirExpanded
-                             ? this.renderCollapseSign(nodePath, level)
-                             : this.renderExpandSign(nodePath, level)}
-                             
-                            {<img src={folderIcon} alt="" />}
+                                 ? this.renderCollapseSign(nodePath)
+                                 : this.renderExpandSign(nodePath)
+                            }
+                            
+                            <img
+                                className={styles.DirectoryIcon}
+                                src={folderIcon}
+                                alt=""
+                            />
 
-                            <div
-                                onContextMenu={(e) => this.handleContextMenuOpen(e, nodePath, dirName, isDir)}
-                            >
+                            <div className={styles.DirectoryName}>
                                 {dirName}
                             </div>
                         </div>
                         {isDirExpanded
-                         ? this.renderDirStructure(subDir, level + 1, nodePath)
-                         : null}
+                             ? this.renderDirStructure(subDir, level + 1, nodePath)
+                             : null
+                        }
                     </div>
                 )
         
@@ -137,6 +149,7 @@ export default class DirectoryTree extends React.PureComponent {
             <img
                 src={arrowUp}
                 alt='Collapse'
+                className={styles.ExpandIcon}
                 title='Collapse'
                 onClick={() => this.handleCollapse(nodePath)}
             />
@@ -148,6 +161,7 @@ export default class DirectoryTree extends React.PureComponent {
             <img
                 src={arrowDown}
                 alt='Expand'
+                className={styles.CollapseIcon}
                 title='Expand'
                 onClick={() => this.handleExpand(nodePath)}
             />
@@ -230,7 +244,6 @@ export default class DirectoryTree extends React.PureComponent {
             editedNodeName: '',
             editedNodeDirPath: ''
         }))
-        alert(`Directory ${name} exists`)
     }
     
     handleContextMenuOpen = (e, nodeDirPath, nodeName, isDir) => {
