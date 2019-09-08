@@ -4,23 +4,14 @@ export default function checkFileExist(path = [], obj = {}, name) {
         
         return checkFileExist(newPath, obj[path[0]], name)
     } else {
-        if (path[1]) {
+        if (path[1] && typeof obj[path[0]][path[1]] === 'object') {
             const newPath = path.slice(1)
             
             return checkFileExist(newPath, obj[path[0]], name)
+        } else if (Array.isArray(obj[path[0]])) {
+            return obj[path[0]].includes(name)
         } else {
-            //cause CmdResource contains not array of dirs, but array with objects of dirs
-            if (Array.isArray(obj[path[0]])) {
-                const foundNode = obj[path[0]].find(nodeName => nodeName === name)
-                const isNodeFile = foundNode && typeof foundNode !== 'object'
-        
-                return isNodeFile
-            } else {
-                const foundNode = obj[path[0]][name]
-                const isNodeFile = foundNode && typeof foundNode !== 'object'
-        
-                return isNodeFile
-            }
+            return obj === name
         }
     }
 }
