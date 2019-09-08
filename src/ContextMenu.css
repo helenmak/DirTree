@@ -1,9 +1,31 @@
 .ContextMenu {
     position: absolute;
     width: 260px;
-    background: grey;
+    background: #3C3F41;
+    border: 1px solid #5C5D5E;
 }
 
 .Hidden {
     display: none;
+}
+
+.Divider {
+    height: 0.5px;
+    width: 100%;
+    background: #5C5D5E;
+}
+
+.MenuButton {
+    padding: 2px;
+    margin-left: 6px;
+}
+
+.NewButton {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.NewButtonIcon {
+    height: 21px;
 }

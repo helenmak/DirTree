@@ -1,11 +1,17 @@
 .Submenu {
     position: absolute;
-    width: 260px;
-    background: grey;
     top: 0;
-    left: 260px;
+    left: 263px;
+    width: 260px;
+    background: #3C3F41;
+    border: 1px solid #5C5D5E;
 }
 
 .Hidden {
     display: none;
+}
+
+.SubmenuButton {
+    padding: 2px;
+    margin-left: 6px;
 }

@@ -26,7 +26,7 @@ import styles           from './DirectoryTree.css'
 
 
 //TODO: separate functions for render nodes, separate components from context menu
-//TODO: not to save dirstructure in state?
+
 export default class DirectoryTree extends React.PureComponent {
     state = {
         dirStructure: null,
@@ -310,7 +310,9 @@ export default class DirectoryTree extends React.PureComponent {
         
         return (
             <div className={styles.DirectoryTreeWrapper}>
+                
                 {this.renderDirStructure(this.state.dirStructure)}
+                
                 <ContextMenu
                     isOpen={isContextMenuOpen}
                     pageX={contextMenuPageX}
@@ -338,9 +340,8 @@ export default class DirectoryTree extends React.PureComponent {
                     name={this.state.editedNodeName}
                     onDelete={this.handleNodeDelete}
                     onCancel={this.handleDeleteModalCancel}
-                >
+                />
                 
-                </DeleteModal>
             </div>
         )
     }

@@ -1,8 +1,6 @@
 import React from 'react'
 
-import folderIcon from './assets/folder.svg'
-import arrowUp from './assets/arrowUp.svg'
-import arrowDown from './assets/arrowDown.svg'
+import arrowRight from './assets/arrowRight.svg'
 
 import Submenu from './Submenu'
 
@@ -21,10 +19,8 @@ export default class ContextMenu extends React.PureComponent {
         if (!prevProps.isOpen && this.props.isOpen) {
             document.addEventListener('click', this.handleDocumentClick)
         }
-        console.log('menuDidUpdate', prevProps, this.props)
         
         if (prevProps.isOpen && !this.props.isOpen) {
-            console.log('close submenu')
             this.setState(() => ({ isNewSubmenuOpen: false }))
             document.removeEventListener('click', this.handleDocumentClick)
         }
@@ -75,12 +71,21 @@ export default class ContextMenu extends React.PureComponent {
                 }}
             >
                 <div
+                    className={`${styles.MenuButton} ${styles.NewButton}`}
                     onClick={this.handleSubmenuOpen}
                 >
                     New
+                    <img
+                        src={arrowRight}
+                        alt=""
+                        className={styles.MenuButton}
+                    />
                 </div>
                 
+                <div className={styles.Divider} />
+                
                 <div
+                    className={styles.MenuButton}
                     onClick={this.handleDelete}
                 >
                     Delete

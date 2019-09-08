@@ -14,9 +14,8 @@ export default class Submenu extends React.PureComponent {
         if (!prevProps.isOpen && this.props.isOpen) {
             document.addEventListener('click', this.handleDocumentClick)
         }
-        console.log('submenuDidUpdate', prevProps, this.props)
+
         if (prevProps.isOpen && !this.props.isOpen) {
-            console.log('remove listener in did update')
             document.removeEventListener('click', this.handleDocumentClick)
         }
     }
@@ -24,7 +23,6 @@ export default class Submenu extends React.PureComponent {
     handleDocumentClick = (event) => {
         if (!this.submenu.contains(event.target)) {
             this.props.onClose()
-            console.log('remove listener in doc click')
             document.removeEventListener('click', this.handleDocumentClick)
         }
     }
@@ -43,17 +41,18 @@ export default class Submenu extends React.PureComponent {
                 className={classList}
             >
                 <div
-                    onClick={this.props.onNewDirectory}
-                >
-                    Directory
-                </div>
-                
-                <div
+                    className={styles.SubmenuButton}
                     onClick={this.handleNewFile}
                 >
                     File
                 </div>
                 
+                <div
+                    className={styles.SubmenuButton}
+                    onClick={this.props.onNewDirectory}
+                >
+                    Directory
+                </div>
             </div>
         )
     }
