@@ -13,7 +13,8 @@ import ContextMenu from './ContextMenu'
 import Modal from './shared/Modal'
 
 import addFile           from './utils/addFile'
-import checkNodeExist    from './utils/checkNodeExist'
+import checkDirectoryExist    from './utils/checkDirectoryExist'
+import checkFileExist    from './utils/checkFileExist'
 import addDirectory      from './utils/addDirectory'
 
 import NewFileModal      from './components/NewFileModal'
@@ -171,7 +172,7 @@ export default class DirectoryTree extends React.PureComponent {
         let prevDirStructure = JSON.parse(JSON.stringify(this.state.dirStructure))
         let newDirStructure = prevDirStructure
     
-        const nodeExist = checkNodeExist(nodeDirPathArr, prevDirStructure, fullFileName)
+        const nodeExist = checkFileExist(nodeDirPathArr, prevDirStructure, fullFileName)
         if (!nodeExist) {
             newDirStructure = addFile(nodeDirPathArr, prevDirStructure, fullFileName)
         } else {
@@ -189,7 +190,7 @@ export default class DirectoryTree extends React.PureComponent {
         let prevDirStructure = JSON.parse(JSON.stringify(this.state.dirStructure))
         let newDirStructure = prevDirStructure
         
-        const nodeExist = checkNodeExist(nodeDirPathArr, prevDirStructure, name)
+        const nodeExist = checkDirectoryExist(nodeDirPathArr, prevDirStructure, name)
         if (!nodeExist) {
             newDirStructure = addDirectory(nodeDirPathArr, prevDirStructure, name)
         } else {
