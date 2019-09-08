@@ -19,7 +19,10 @@ import checkFileExist      from './utils/checkFileExist'
 import addDirectory        from './utils/addDirectory'
 import deleteNode          from './utils/deleteNode'
 
-import styles      from './DirectoryTree.css'
+import sortDirStructure from './utils/sortDirStructure'
+import nodesSorter      from './utils/nodesSorter'
+
+import styles           from './DirectoryTree.css'
 
 
 
@@ -44,7 +47,7 @@ export default class DirectoryTree extends React.PureComponent {
     async componentDidMount() {
         const dirStructure = await fetchDirectoryStructure();
         
-        this.setState(() => ({ dirStructure }))
+        this.setState(() => ({ dirStructure: sortDirStructure(dirStructure, nodesSorter) }))
     }
     
     renderDirStructure = (structure, level = 0, path = '/') => {
