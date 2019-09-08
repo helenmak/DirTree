@@ -8,17 +8,18 @@ import folderIcon from './assets/folder.svg'
 import arrowUp from './assets/arrowUp.svg'
 import arrowDown from './assets/arrowDown.svg'
 
-import styles      from './DirectoryTree.css'
 import ContextMenu from './ContextMenu'
-import Modal from './shared/Modal'
-
-import addFile           from './utils/addFile'
-import checkDirectoryExist    from './utils/checkDirectoryExist'
-import checkFileExist    from './utils/checkFileExist'
-import addDirectory      from './utils/addDirectory'
-
 import NewFileModal      from './components/NewFileModal'
 import NewDirectoryModal from './components/NewDirectoryModal'
+import DeleteModal from './components/DeleteModal'
+
+import addFile             from './utils/addFile'
+import checkDirectoryExist from './utils/checkDirectoryExist'
+import checkFileExist      from './utils/checkFileExist'
+import addDirectory        from './utils/addDirectory'
+import deleteNode          from './utils/deleteNode'
+
+import styles      from './DirectoryTree.css'
 
 
 
@@ -28,15 +29,15 @@ export default class DirectoryTree extends React.PureComponent {
     state = {
         dirStructure: null,
         expandedDirs: [],
-        contextMenu: {
-            isOpen: false,
-            pageX: null,
-            pageY: null
-        },
+        isContextMenuOpen: false,
+        contextMenuPageX: null,
+        contextMenuPageY: null,
         editedNodeName: '',
         editedNodeDirPath: '',
+        isEditedNodeDir: false,
         isFileModalOpen: false,
         isDirectoryModalOpen: false,
+        isDeleteModalOpen: false,
         newFileType: '',
     }
     
@@ -55,12 +56,14 @@ export default class DirectoryTree extends React.PureComponent {
         if (typeof structure === 'string') {
             const extension = structure.split('.').reverse()[0]
             const nodePath = `${path}${structure}`
+            const isDir = false
             
             return (
                 <div
                     className={styles.EndNode}
                     style={{ marginLeft: level*10 }}
                     key={nodePath}
+                    onContextMenu={(e) => this.handleContextMenuOpen(e, path, structure, isDir)}
                 >
                     {<img src={require(`./assets/${ExtensionToIcon(extension)}`)} alt="" />}
                     {structure}
@@ -92,6 +95,8 @@ export default class DirectoryTree extends React.PureComponent {
                 const isDirExpanded = Boolean(this.state.expandedDirs.find(expandedNodePath => {
                     return expandedNodePath === nodePath
                 }))
+    
+                const isDir = true
         
                 const treePart =  (
                     <div key={nodePath}>
@@ -106,7 +111,7 @@ export default class DirectoryTree extends React.PureComponent {
                             {<img src={folderIcon} alt="" />}
 
                             <div
-                                onContextMenu={(e) => this.handleContextMenuOpen(e, nodePath, dirName)}
+                                onContextMenu={(e) => this.handleContextMenuOpen(e, nodePath, dirName, isDir)}
                             >
                                 {dirName}
                             </div>
@@ -148,7 +153,7 @@ export default class DirectoryTree extends React.PureComponent {
     
     
     handleCreateFile = (name) => {
-        const { editedNodeName, editedNodeDirPath, newFileType } = this.state
+        const { editedNodeDirPath, newFileType } = this.state
         
         let extension = newFileType ? `.${newFileType}`  : ''
         let fileName = name
@@ -175,17 +180,14 @@ export default class DirectoryTree extends React.PureComponent {
         const nodeExist = checkFileExist(nodeDirPathArr, prevDirStructure, fullFileName)
         if (!nodeExist) {
             newDirStructure = addFile(nodeDirPathArr, prevDirStructure, fullFileName)
+            this.setState(() => ({ dirStructure: newDirStructure, isFileModalOpen: false }))
         } else {
             alert(`File ${fullFileName} exists`)
         }
-        
-        this.setState(() => ({ dirStructure: newDirStructure, isFileModalOpen: false }))
     }
     
     handleCreateDirectory = (name) => {
-        const { editedNodeName, editedNodeDirPath } = this.state
-        
-        const nodeDirPathArr = editedNodeDirPath.split('/').filter(item => item)
+        const nodeDirPathArr = this.state.editedNodeDirPath.split('/').filter(item => item)
         
         let prevDirStructure = JSON.parse(JSON.stringify(this.state.dirStructure))
         let newDirStructure = prevDirStructure
@@ -193,11 +195,10 @@ export default class DirectoryTree extends React.PureComponent {
         const nodeExist = checkDirectoryExist(nodeDirPathArr, prevDirStructure, name)
         if (!nodeExist) {
             newDirStructure = addDirectory(nodeDirPathArr, prevDirStructure, name)
+            this.setState(() => ({ dirStructure: newDirStructure, isDirectoryModalOpen: false  }))
         } else {
             alert(`Directory ${name} exists`)
         }
-        
-        this.setState(() => ({ dirStructure: newDirStructure, isDirectoryModalOpen: false  }))
     }
     
     handleCollapse = (nodePath) => {
@@ -211,7 +212,25 @@ export default class DirectoryTree extends React.PureComponent {
         this.setState((prevState) => ({ expandedDirs: [ ...prevState.expandedDirs, nodePath ] }))
     }
     
-    handleContextMenuOpen = (e, nodeDirPath, nodeName) => {
+    handleNodeDelete = () => {
+        const { editedNodeName, editedNodeDirPath } = this.state
+    
+        const nodeDirPathArr = editedNodeDirPath.split('/').filter(item => item)
+    
+        const prevDirStructure = JSON.parse(JSON.stringify(this.state.dirStructure))
+        const newDirStructure = deleteNode(nodeDirPathArr, prevDirStructure, editedNodeName)
+        
+        this.setState(() => ({
+            dirStructure: newDirStructure,
+            isDeleteModalOpen: false,
+            isEditedNodeDir: false,
+            editedNodeName: '',
+            editedNodeDirPath: ''
+        }))
+        alert(`Directory ${name} exists`)
+    }
+    
+    handleContextMenuOpen = (e, nodeDirPath, nodeName, isDir) => {
         e.persist()
         e.preventDefault()
         const { pageX, pageY } = e;
@@ -221,7 +240,8 @@ export default class DirectoryTree extends React.PureComponent {
             contextMenuPageX: pageX,
             contextMenuPageY: pageY,
             editedNodeName: nodeName,
-            editedNodeDirPath: nodeDirPath
+            editedNodeDirPath: nodeDirPath,
+            isEditedNodeDir: isDir
         }));
     }
     
@@ -229,33 +249,43 @@ export default class DirectoryTree extends React.PureComponent {
         this.setState(() => ({
                 isContextMenuOpen: false,
                 contextMenuPageX: null,
-                contextMenuPageY: null,
-                editedNodeName: '',
-                editedNodePath: ''
+                contextMenuPageY: null
             })
         )
     }
     
     handleOpenNewDirectoryModal = () => {
-        this.setState(() => ({
-            isDirectoryModalOpen: true,
-            isContextMenuOpen: false
-        }))
+        this.setState(() => ({ isDirectoryModalOpen: true }))
     }
     
     handleOpenNewFileModal = (newFileType = '') => {
         this.setState(() => ({
             isFileModalOpen: true,
-            newFileType,
-            isContextMenuOpen: false
+            newFileType
         }))
     }
     
-    handleModalCancel = () => {
+    handleOpenDeleteModal = () => {
+        this.setState(() => ({ isDeleteModalOpen: true }))
+    }
+    
+    handleDeleteModalCancel = () => {
+        this.setState(() => ({
+            isDeleteModalOpen: false,
+            editedNodeDirPath: '',
+            editedNodeName: '',
+            isEditedNodeDir: false
+        }))
+    }
+    
+    handleCreateModalCancel = () => {
         this.setState(() => ({
             isDirectoryModalOpen: false,
             isFileModalOpen: false,
-            newFileType: ''
+            newFileType: '',
+            editedNodeDirPath: '',
+            editedNodeName: '',
+            isEditedNodeDir: false
         }))
     }
     
@@ -272,19 +302,29 @@ export default class DirectoryTree extends React.PureComponent {
                     onClose={this.handleContextMenuClose}
                     onNewDirectory={this.handleOpenNewDirectoryModal}
                     onNewFile={this.handleOpenNewFileModal}
+                    onDelete={this.handleOpenDeleteModal}
                 />
                 <NewFileModal
                     isOpen={this.state.isFileModalOpen}
                     onCreate={this.handleCreateFile}
-                    onCancel={this.handleModalCancel}
+                    onCancel={this.handleCreateModalCancel}
                 />
                 
                 <NewDirectoryModal
                     isOpen={this.state.isDirectoryModalOpen}
                     onCreate={this.handleCreateDirectory}
-                    onCancel={this.handleModalCancel}
+                    onCancel={this.handleCreateModalCancel}
                 />
                 
+                <DeleteModal
+                    isOpen={this.state.isDeleteModalOpen}
+                    isDir={this.state.isEditedNodeDir}
+                    name={this.state.editedNodeName}
+                    onDelete={this.handleNodeDelete}
+                    onCancel={this.handleDeleteModalCancel}
+                >
+                
+                </DeleteModal>
             </div>
         )
     }

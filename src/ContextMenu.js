@@ -46,6 +46,21 @@ export default class ContextMenu extends React.PureComponent {
         this.setState(() => ({ isNewSubmenuOpen: false }))
     }
     
+    handleDelete = () => {
+        this.props.onDelete()
+        this.props.onClose()
+    }
+    
+    handleNewDirectory = () => {
+        this.props.onNewDirectory()
+        this.props.onClose()
+    }
+    
+    handleNewFile = () => {
+        this.props.onNewFile()
+        this.props.onClose()
+    }
+    
     render() {
         const menuClassName = styles.ContextMenu
         const classList = this.props.isOpen ? menuClassName : `${menuClassName} ${styles.Hidden}`
@@ -65,14 +80,16 @@ export default class ContextMenu extends React.PureComponent {
                     New
                 </div>
                 
-                <div>
+                <div
+                    onClick={this.handleDelete}
+                >
                     Delete
                 </div>
                 
                 <Submenu
                     isOpen={this.state.isNewSubmenuOpen}
-                    onNewDirectory={this.props.onNewDirectory}
-                    onNewFile={this.props.onNewFile}
+                    onNewDirectory={this.handleNewDirectory}
+                    onNewFile={this.handleNewFile}
                     onClose={this.handleSubmenuClose}
                 />
             </div>
