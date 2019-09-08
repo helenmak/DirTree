@@ -10,31 +10,37 @@ import styles from './Submenu.css'
 export default class Submenu extends React.PureComponent {
     submenu = null
     
-    componentDidUpdate(prevState, prevProps) {
+    componentDidUpdate(prevProps) {
         if (!prevProps.isOpen && this.props.isOpen) {
             document.addEventListener('click', this.handleDocumentClick)
         }
-    }
-    
-    handleDocumentClick = (event) => {
-        console.log('handleDocumentClick submenu')
-        if (!this.submenu.contains(event.target)) {
-            this.props.onClose()
+        console.log('submenuDidUpdate', prevProps, this.props)
+        if (prevProps.isOpen && !this.props.isOpen) {
+            console.log('remove listener in did update')
             document.removeEventListener('click', this.handleDocumentClick)
         }
     }
     
+    handleDocumentClick = (event) => {
+        if (!this.submenu.contains(event.target)) {
+            this.props.onClose()
+            console.log('remove listener in doc click')
+            document.removeEventListener('click', this.handleDocumentClick)
+        }
+    }
+    
+    handleNewFile = () => {
+        this.props.onNewFile()
+    }
+    
     render() {
-        if (!this.props.isOpen) return null;
+        const submenuClassName = styles.Submenu
+        const classList = this.props.isOpen ? submenuClassName : `${submenuClassName} ${styles.Hidden}`
         
         return (
             <div
                 ref={(el) => this.submenu = el}
-                className={styles.Submenu}
-                style={{
-                    top: this.props.pageY,
-                    left: this.props.pageX + 260
-                }}
+                className={classList}
             >
                 <div
                     onClick={this.props.onNewDirectory}
@@ -43,7 +49,7 @@ export default class Submenu extends React.PureComponent {
                 </div>
                 
                 <div
-                    onClick={this.props.onNewFile}
+                    onClick={this.handleNewFile}
                 >
                     File
                 </div>

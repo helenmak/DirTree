@@ -3,3 +3,7 @@
     width: 260px;
     background: grey;
 }
+
+.Hidden {
+    display: none;
+}

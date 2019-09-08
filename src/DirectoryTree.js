@@ -12,8 +12,13 @@ import styles      from './DirectoryTree.css'
 import ContextMenu from './ContextMenu'
 import Modal from './shared/Modal'
 
-import addNode        from './utils/addNode'
-import checkNodeExist from './utils/checkNodeExist'
+import addFile           from './utils/addFile'
+import checkNodeExist    from './utils/checkNodeExist'
+import addDirectory      from './utils/addDirectory'
+
+import NewFileModal      from './components/NewFileModal'
+import NewDirectoryModal from './components/NewDirectoryModal'
+
 
 
 //TODO: separate functions for render nodes, separate components from context menu
@@ -29,12 +34,9 @@ export default class DirectoryTree extends React.PureComponent {
         },
         editedNodeName: '',
         editedNodeDirPath: '',
-        modal: {
-            isOpen: false,
-            mode: 'directory',
-        },
+        isFileModalOpen: false,
+        isDirectoryModalOpen: false,
         newFileType: '',
-        newNodeName: ''
     }
     
     async componentDidMount() {
@@ -71,7 +73,7 @@ export default class DirectoryTree extends React.PureComponent {
             const treePart = (
                 <div
                     className={styles.DirectoryNodes}
-                    style={{ marginLeft: level*10 }}
+                    style={{ marginLeft: 10 }}
                     key={`nodeswrapper${path}`}
                 >
                     {structure.map((node, index) => {
@@ -143,59 +145,58 @@ export default class DirectoryTree extends React.PureComponent {
         )
     }
     
-    renderModalHeader = (modalData) => {
-        const { mode, fileType } = modalData;
-        
-        return mode === 'directory'
-           ? (
-                <div>
-                    New directory
-                </div>
-            )
-           : (
-               <div>
-                   {fileType ? `New ${fileType} file` : 'New file'}
-               </div>
-            )
-    }
     
-    renderModalFooter = (modalData) => {
-        return (
-           <div>
-               <button
-                   onClick={this.handleCreateNode}
-               >
-                   Ok
-               </button>
-                <button>
-                    Cancel
-                </button>
-           </div>
-        )
-    }
-    
-    
-    handleCreateNode = () => {
-        const { editedDirName, editedNodeDirPath, modal : { mode }, newNodeName, newFileType } = this.state;
+    handleCreateFile = (name) => {
+        const { editedNodeName, editedNodeDirPath, newFileType } = this.state
         
-        const extension = newFileType ? `.${newFileType}`  : '';
-        const nodeFullName = `${newNodeName}${extension}`
+        let extension = newFileType ? `.${newFileType}`  : ''
+        let fileName = name
         
-        const nodeDirPathArr = editedNodeDirPath.split('/').filter(item => item);
-        
-        this.setState((prevState) => {
-            let dirStructure = JSON.parse(JSON.stringify(prevState.dirStructure))
-            
-            const nodeExist = checkNodeExist(nodeDirPathArr, dirStructure, nodeFullName)
-            if (!nodeExist) {
-                dirStructure = addNode(nodeDirPathArr, dirStructure, nodeFullName)
+        if (!extension) {
+            const nameArr = fileName.split('.')
+            const nameArrSize = nameArr.length
+
+            if (nameArrSize > 1) {
+                extension = `.${nameArr[nameArrSize - 1]}` // assume value after last dot is an extensions
+                fileName = nameArr.slice(0, nameArrSize - 1).join('.')
             } else {
-                alert(`Node ${nodeFullName} exists`)
+                fileName = nameArr[0]
             }
-            
-            return { dirStructure }
-        })
+        }
         
+        const fullFileName = `${fileName}${extension}`
+        
+        const nodeDirPathArr = editedNodeDirPath.split('/').filter(item => item)
+    
+        let prevDirStructure = JSON.parse(JSON.stringify(this.state.dirStructure))
+        let newDirStructure = prevDirStructure
+    
+        const nodeExist = checkNodeExist(nodeDirPathArr, prevDirStructure, fullFileName)
+        if (!nodeExist) {
+            newDirStructure = addFile(nodeDirPathArr, prevDirStructure, fullFileName)
+        } else {
+            alert(`File ${fullFileName} exists`)
+        }
+        
+        this.setState(() => ({ dirStructure: newDirStructure, isFileModalOpen: false }))
+    }
+    
+    handleCreateDirectory = (name) => {
+        const { editedNodeName, editedNodeDirPath } = this.state
+        
+        const nodeDirPathArr = editedNodeDirPath.split('/').filter(item => item)
+        
+        let prevDirStructure = JSON.parse(JSON.stringify(this.state.dirStructure))
+        let newDirStructure = prevDirStructure
+        
+        const nodeExist = checkNodeExist(nodeDirPathArr, prevDirStructure, name)
+        if (!nodeExist) {
+            newDirStructure = addDirectory(nodeDirPathArr, prevDirStructure, name)
+        } else {
+            alert(`Directory ${name} exists`)
+        }
+        
+        this.setState(() => ({ dirStructure: newDirStructure, isDirectoryModalOpen: false  }))
     }
     
     handleCollapse = (nodePath) => {
@@ -213,13 +214,11 @@ export default class DirectoryTree extends React.PureComponent {
         e.persist()
         e.preventDefault()
         const { pageX, pageY } = e;
-        console.log('EEE', e)
+        
         this.setState(() => ({
-            contextMenu: {
-                isOpen: true,
-                pageX,
-                pageY
-            },
+            isContextMenuOpen: true,
+            contextMenuPageX: pageX,
+            contextMenuPageY: pageY,
             editedNodeName: nodeName,
             editedNodeDirPath: nodeDirPath
         }));
@@ -227,11 +226,9 @@ export default class DirectoryTree extends React.PureComponent {
     
     handleContextMenuClose = () => {
         this.setState(() => ({
-                contextMenu: {
-                    isOpen: false,
-                    pageX: null,
-                    pageY: null
-                },
+                isContextMenuOpen: false,
+                contextMenuPageX: null,
+                contextMenuPageY: null,
                 editedNodeName: '',
                 editedNodePath: ''
             })
@@ -240,53 +237,53 @@ export default class DirectoryTree extends React.PureComponent {
     
     handleOpenNewDirectoryModal = () => {
         this.setState(() => ({
-            modal: {
-                isOpen: true,
-                mode: 'directory'
-            }
+            isDirectoryModalOpen: true,
+            isContextMenuOpen: false
         }))
     }
     
     handleOpenNewFileModal = (newFileType = '') => {
         this.setState(() => ({
-            modal: {
-                isOpen: true,
-                mode: 'file'
-            },
-            newFileType
+            isFileModalOpen: true,
+            newFileType,
+            isContextMenuOpen: false
         }))
     }
     
-    handleNewNodeNameChange = (e) => {
-        const name = e.target.value;
-        
-        this.setState(() => ({ newNodeName: name }))
+    handleModalCancel = () => {
+        this.setState(() => ({
+            isDirectoryModalOpen: false,
+            isFileModalOpen: false,
+            newFileType: ''
+        }))
     }
     
     render() {
-        const {modal, contextMenu} = this.state;
+        const { isContextMenuOpen, contextMenuPageX, contextMenuPageY } = this.state;
         
         return (
             <div className={styles.DirectoryTreeWrapper}>
                 {this.renderDirStructure(this.state.dirStructure)}
                 <ContextMenu
-                    isOpen={contextMenu.isOpen}
-                    pageX={contextMenu.pageX}
-                    pageY={contextMenu.pageY}
+                    isOpen={isContextMenuOpen}
+                    pageX={contextMenuPageX}
+                    pageY={contextMenuPageY}
                     onClose={this.handleContextMenuClose}
                     onNewDirectory={this.handleOpenNewDirectoryModal}
                     onNewFile={this.handleOpenNewFileModal}
                 />
-                <Modal
-                    isOpen={modal.isOpen}
-                    header={this.renderModalHeader(this.state.modal)}
-                    footer={this.renderModalFooter(this.state.modal)}
-                >
-                    <input
-                        type="text"
-                        onChange={this.handleNewNodeNameChange}
-                    />
-                </Modal>
+                <NewFileModal
+                    isOpen={this.state.isFileModalOpen}
+                    onCreate={this.handleCreateFile}
+                    onCancel={this.handleModalCancel}
+                />
+                
+                <NewDirectoryModal
+                    isOpen={this.state.isDirectoryModalOpen}
+                    onCreate={this.handleCreateDirectory}
+                    onCancel={this.handleModalCancel}
+                />
+                
             </div>
         )
     }

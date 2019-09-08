@@ -5,6 +5,8 @@ import styles from './Modal.css'
 
 export default class Modal extends React.PureComponent {
     render() {
+        if (!this.props.isOpen) return null
+        
         return (
             <div
                 className={styles.Modal}

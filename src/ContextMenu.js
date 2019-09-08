@@ -4,7 +4,7 @@ import folderIcon from './assets/folder.svg'
 import arrowUp from './assets/arrowUp.svg'
 import arrowDown from './assets/arrowDown.svg'
 
-import NewSubmenu from './NewSubmenu'
+import Submenu from './Submenu'
 
 import styles from './ContextMenu.css'
 
@@ -17,38 +17,50 @@ export default class ContextMenu extends React.PureComponent {
     
     contextMenu = null
     
-    componentDidUpdate(prevState, prevProps) {
+    componentDidUpdate(prevProps) {
         if (!prevProps.isOpen && this.props.isOpen) {
             document.addEventListener('click', this.handleDocumentClick)
+        }
+        console.log('menuDidUpdate', prevProps, this.props)
+        
+        if (prevProps.isOpen && !this.props.isOpen) {
+            console.log('close submenu')
+            this.setState(() => ({ isNewSubmenuOpen: false }))
+            document.removeEventListener('click', this.handleDocumentClick)
         }
     }
     
     handleDocumentClick = (event) => {
-        console.log('handleDocumentClick')
         if (!this.contextMenu.contains(event.target)) {
+            this.setState(() => ({ isNewSubmenuOpen: false }))
             this.props.onClose()
             document.removeEventListener('click', this.handleDocumentClick)
         }
     }
     
-    handleNewClick = () => {
+    handleSubmenuOpen = () => {
         this.setState(() => ({ isNewSubmenuOpen: true }))
     }
     
+    handleSubmenuClose = () => {
+        this.setState(() => ({ isNewSubmenuOpen: false }))
+    }
+    
     render() {
-        if (!this.props.isOpen) return null;
-        
+        const menuClassName = styles.ContextMenu
+        const classList = this.props.isOpen ? menuClassName : `${menuClassName} ${styles.Hidden}`
+    
         return (
             <div
                 ref={(el) => this.contextMenu = el}
-                className={styles.ContextMenu}
+                className={classList}
                 style={{
                     top: this.props.pageY,
                     left: this.props.pageX
                 }}
             >
                 <div
-                    onClick={this.handleNewClick}
+                    onClick={this.handleSubmenuOpen}
                 >
                     New
                 </div>
@@ -57,9 +69,11 @@ export default class ContextMenu extends React.PureComponent {
                     Delete
                 </div>
                 
-                <NewSubmenu
+                <Submenu
+                    isOpen={this.state.isNewSubmenuOpen}
                     onNewDirectory={this.props.onNewDirectory}
                     onNewFile={this.props.onNewFile}
+                    onClose={this.handleSubmenuClose}
                 />
             </div>
         )
