@@ -12,10 +12,12 @@ export default function addFile(path = [], obj = {}, name) {
         } else {
             if (name.includes('/')) {
                 const nameArr = name.split('/')
-                const pathToCreate = nameArr.slice(0, nameArr.length - 1)
-                const newPath = path.slice(1).concat(pathToCreate)
+                
+                const lastName = nameArr[nameArr.length - 1]
+                const fileName = lastName.includes('.') ? lastName : null
     
-                const fileName = nameArr[nameArr.length - 1]
+                const pathToCreate = fileName ? nameArr.slice(0, nameArr.length - 1) : nameArr
+                const newPath = path.slice(1).concat(pathToCreate)
     
                 const createdObjWithFile = ensureDir(newPath, obj[path[0]], fileName)
                 const newDirectoryFiles = [ ...obj[path[0]], createdObjWithFile ].sort(nodesSorter)
@@ -32,10 +34,12 @@ export default function addFile(path = [], obj = {}, name) {
         } else {
             if (name.includes('/')) {
                 const nameArr = name.split('/')
-                const pathToCreate = nameArr.slice(0, nameArr.length - 1)
-                const newPath = path.slice(1).concat(pathToCreate)
+                
+                const lastName = nameArr[nameArr.length - 1]
+                const fileName = lastName.includes('.') ? lastName : null
     
-                const fileName = nameArr[nameArr.length - 1]
+                const pathToCreate = fileName ? nameArr.slice(0, nameArr.length - 1) : nameArr
+                const newPath = path.slice(1).concat(pathToCreate)
     
                 const createdObjWithFile = ensureDir(newPath, obj[path[0]], fileName)
                 const newDirectoryFiles = createdObjWithFile.sort(nodesSorter)
