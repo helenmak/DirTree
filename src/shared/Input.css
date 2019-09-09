@@ -1,0 +1,28 @@
+.Wrapper {
+    position: relative;
+}
+
+.Input {
+    width: 100%;
+    padding: 4px;
+    background: #4F5254;
+    border: 1px solid #696C6E;
+    color: #AFB1B3;
+}
+
+.InputError {
+    border: 2px solid #8d2b07
+}
+
+.ErrorMsg {
+    position: absolute;
+    bottom: 115%;
+    right: 0;
+    background: #762406;
+    padding: 1px 4px;
+    color: #AFB1B3;
+}
+
+.Hidden {
+    display: none;
+}

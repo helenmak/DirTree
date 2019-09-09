@@ -1,47 +1,23 @@
 import React from 'react'
 import Modal from '../shared/Modal'
+import Input from '../shared/Input'
 
 
 export default class NewDirectoryModal extends React.PureComponent {
-    state = {
-        name: ''
-    }
-    
-    handleNameChange = e => {
-        const name = e.target.value;
-    
-        this.setState(() => ({ name }))
-    }
-    
-    handleCreate = () => {
-        this.props.onCreate(this.state.name)
-    }
-    
     render() {
         return (
             <Modal
                 isOpen={this.props.isOpen}
-                header={
-                    <div>
-                        New directory
-                    </div>
-                }
-                footer={
-                    <div>
-                        <button onClick={this.handleCreate}>
-                           Ok
-                        </button>
-                        <button onClick={this.props.onCancel}>
-                            Cancel
-                        </button>
-                    </div>
-                }
+                title={this.props.title}
+                onOk={this.props.onOk}
+                onCancel={this.props.onCancel}
             >
-                <input
+                <Input
                     type="text"
-                    onChange={this.handleNameChange}
+                    error={this.props.error}
+                    onChange={this.props.onChange}
                 />
-        </Modal>
+            </Modal>
         )
     }
 }

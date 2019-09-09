@@ -24,6 +24,6 @@ body > div {
   height: 100%;
 }
 
-div, span {
+* {
   box-sizing: border-box;
 }

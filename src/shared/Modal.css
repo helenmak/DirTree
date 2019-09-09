@@ -1,8 +1,35 @@
 .Modal {
     position: fixed;
-    top: 45%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
+    text-align: center;
     width: 300px;
-    background: grey;
+    padding: 5px 15px;
+    background: #3C3F41;
+    border: 1px solid #5C5D5E;
+}
+
+.Divider {
+    height: 1px;
+    width: 100%;
+    background: #5C5D5E;
+}
+
+.ModalHeader {
+    text-align: left;
+}
+
+.ModalContent {
+    padding: 10px 0;
+}
+
+.ModalFooter {
+
+}
+
+.ModalFooterBtn {
+    min-width: 65px;
+    margin: 2px 10px;
+    padding: 2px 0;
 }

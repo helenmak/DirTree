@@ -8,20 +8,29 @@ export default class Modal extends React.PureComponent {
         if (!this.props.isOpen) return null
         
         return (
-            <div
-                className={styles.Modal}
-            >
-                <div>
-                    {this.props.header}
+            <div className={styles.Modal}>
+                <div className={styles.ModalHeader}>
+                    {this.props.title}
                 </div>
-                <div>
+                
+                <div className={styles.ModalContent}>
                     {this.props.children}
                 </div>
-                {this.props.footer !== null && (
-                    <div>
-                        {this.props.footer}
-                    </div>
-                )}
+                
+                <div className={styles.ModalFooter}>
+                    <button
+                        className={styles.ModalFooterBtn}
+                        onClick={this.props.onOk}
+                    >
+                        {this.props.okText || 'Ok'}
+                    </button>
+                    <button
+                        className={styles.ModalFooterBtn}
+                        onClick={this.props.onCancel}
+                    >
+                        {this.props.cancelText || 'Cancel'}
+                    </button>
+                </div>
             </div>
         )
     }

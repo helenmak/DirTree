@@ -9,21 +9,9 @@ export default class DeleteModal extends React.PureComponent {
         return (
             <Modal
                 isOpen={this.props.isOpen}
-                header={
-                    <div>
-                        Delete {entityToDelete} "{this.props.name}"?
-                    </div>
-                }
-                footer={
-                    <div>
-                        <button onClick={this.props.onDelete}>
-                           Ok
-                        </button>
-                        <button onClick={this.props.onCancel}>
-                            Cancel
-                        </button>
-                    </div>
-                }
+                title={`Delete ${entityToDelete} "${this.props.name}"?`}
+                onOk={this.props.onOk}
+                onCancel={this.props.onCancel}
             >
                 {this.props.isDir && (
                     `All files and subdirectories in "${this.props.name}" will be deleted.
