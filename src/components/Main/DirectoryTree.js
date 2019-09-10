@@ -1,27 +1,27 @@
 import React from 'react'
 
-import { fetchDirectoryStructure } from './services/api'
+import { fetchDirectoryStructure } from '../../services/api'
 
-import ExtensionToIcon from './ExtensionToIcon'
+import ExtensionToIcon from '../../utils/extensionToIcon'
 
-import folderIcon from './assets/folder.svg'
-import arrowUp from './assets/arrowUp.svg'
-import arrowDown from './assets/arrowDown.svg'
+import folderIcon from '../../assets/folder.svg'
+import arrowUp    from '../../assets/arrowUp.svg'
+import arrowDown  from '../../assets/arrowDown.svg'
 
-import ContextMenu       from './ContextMenu'
-import NewNodeModal      from './components/NewNodeModal'
-import DeleteModal       from './components/DeleteModal'
+import ContextMenu  from '../ContextMenu/ContextMenu'
+import NewNodeModal from '../Modals/NewNodeModal'
+import DeleteModal  from '../Modals/DeleteModal'
 
-import addFile             from './utils/addFile'
-import checkDirectoryExist from './utils/checkDirectoryExist'
-import checkFileExist      from './utils/checkFileExist'
-import addDirectory        from './utils/addDirectory'
-import deleteNode          from './utils/deleteNode'
+import addFile             from '../../utils/addFile'
+import checkDirectoryExist from '../../utils/checkDirectoryExist'
+import checkFileExist      from '../../utils/checkFileExist'
+import addDirectory        from '../../utils/addDirectory'
+import deleteNode          from '../../utils/deleteNode'
 
-import sortDirStructure from './utils/sortDirStructure'
-import nodesSorter      from './utils/nodesSorter'
+import sortDirStructure from '../../utils/sortDirStructure'
+import nodesSorter      from '../../utils/nodesSorter'
 
-import styles           from './DirectoryTree.css'
+import styles from './DirectoryTree.css'
 
 
 export default class DirectoryTree extends React.PureComponent {

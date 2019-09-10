@@ -1,6 +1,6 @@
 import React from 'react'
 
-import arrowRight from './assets/arrowRight.svg'
+import arrowRight from '../../assets/arrowRight.svg'
 
 import Submenu from './Submenu'
 

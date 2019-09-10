@@ -1,5 +1,5 @@
 import React from 'react'
-import Modal from '../shared/Modal'
+import Modal from '../../shared/Modal/Modal'
 
 
 export default class DeleteModal extends React.PureComponent {

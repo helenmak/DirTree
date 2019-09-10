@@ -1,7 +1,7 @@
 import React from 'react'
 
-import Modal from '../shared/Modal'
-import Input from '../shared/Input'
+import Modal from '../../shared/Modal/Modal'
+import Input from '../../shared/Input/Input'
 
 
 export default class NewNodeModal extends React.PureComponent {
