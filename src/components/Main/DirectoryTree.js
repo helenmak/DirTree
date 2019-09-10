@@ -1,7 +1,5 @@
 import React from 'react'
 
-import { fetchDirectoryStructure } from '../../services/api'
-
 import ExtensionToIcon from '../../utils/extensionToIcon'
 
 import folderIcon from '../../assets/folder.svg'
@@ -17,9 +15,6 @@ import checkDirectoryExist from '../../utils/checkDirectoryExist'
 import checkFileExist      from '../../utils/checkFileExist'
 import addDirectory        from '../../utils/addDirectory'
 import deleteNode          from '../../utils/deleteNode'
-
-import sortDirStructure from '../../utils/sortDirStructure'
-import nodesSorter      from '../../utils/nodesSorter'
 
 import styles from './DirectoryTree.css'
 
@@ -44,18 +39,15 @@ export default class DirectoryTree extends React.PureComponent {
         createDirectoryError: ''
     }
     
-    async componentDidMount() {
-        const dirStructure = await fetchDirectoryStructure();
+    static getDerivedStateFromProps(props, state) {
+        if (state.dirStructure) return null;
         
-        this.setState(() => ({ dirStructure: sortDirStructure(dirStructure, nodesSorter) }))
+        return {
+            dirStructure: props.dirStructure
+        }
     }
     
     renderDirStructure = (structure, level = 0, path = '/') => {
-        if (!structure) return (
-            <div>
-                No directory tree
-            </div>
-        )
         if (typeof structure === 'string') {
             const extension = structure.split('.').reverse()[0]
             const nodePath = `${path}${structure}`
@@ -70,7 +62,7 @@ export default class DirectoryTree extends React.PureComponent {
                 >
                     <img
                         className={styles.FileIcon}
-                        src={require(`./assets/${ExtensionToIcon(extension)}`)}
+                        src={require(`../../assets/${ExtensionToIcon(extension)}`)}
                         alt=""
                     />
                     
@@ -158,7 +150,7 @@ export default class DirectoryTree extends React.PureComponent {
             <img
                 src={arrowUp}
                 alt='Collapse'
-                className={styles.ExpandIcon}
+                className={styles.CollapseIcon}
                 title='Collapse'
                 onClick={() => this.handleCollapse(nodePath)}
             />
@@ -170,7 +162,7 @@ export default class DirectoryTree extends React.PureComponent {
             <img
                 src={arrowDown}
                 alt='Expand'
-                className={styles.CollapseIcon}
+                className={styles.ExpandIcon}
                 title='Expand'
                 onClick={() => this.handleExpand(nodePath)}
             />

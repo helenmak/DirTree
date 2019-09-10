@@ -1,6 +1,6 @@
 import React from 'react'
 
-import DirectoryTree from './components/Main/DirectoryTree'
+import DirectoryTree from './pages/DirectoryTree'
 
 import styles from './App.css'
 
