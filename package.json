@@ -7,8 +7,7 @@
     "react-dom": "^16.9.0"
   },
   "scripts": {
-    "start": "webpack-dev-server --open",
-    "build": "react-scripts build"
+    "start": "webpack-dev-server --open"
   },
   "browserslist": {
     "production": [
