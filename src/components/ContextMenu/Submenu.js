@@ -23,10 +23,6 @@ export default class Submenu extends React.PureComponent {
         }
     }
     
-    handleNewFile = () => {
-        this.props.onNewFile()
-    }
-    
     render() {
         const submenuClassName = styles.Submenu
         const classList = this.props.isOpen ? submenuClassName : `${submenuClassName} ${styles.Hidden}`
@@ -38,7 +34,7 @@ export default class Submenu extends React.PureComponent {
             >
                 <div
                     className={styles.SubmenuButton}
-                    onClick={this.handleNewFile}
+                    onClick={this.props.onNewFile}
                 >
                     File
                 </div>

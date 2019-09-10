@@ -1,7 +1,5 @@
 import React from 'react'
 
-import ExtensionToIcon from '../../utils/extensionToIcon'
-
 import folderIcon from '../../assets/folder.svg'
 import arrowUp    from '../../assets/arrowUp.svg'
 import arrowDown  from '../../assets/arrowDown.svg'
@@ -15,6 +13,7 @@ import checkDirectoryExist from '../../utils/checkDirectoryExist'
 import checkFileExist      from '../../utils/checkFileExist'
 import addDirectory        from '../../utils/addDirectory'
 import deleteNode          from '../../utils/deleteNode'
+import extensionToIcon     from '../../utils/extensionToIcon'
 
 import styles from './DirectoryTree.css'
 
@@ -32,7 +31,6 @@ export default class DirectoryTree extends React.PureComponent {
         isFileModalOpen: false,
         isDirectoryModalOpen: false,
         isDeleteModalOpen: false,
-        newFileType: '',
         newFileName: '',
         newDirectoryName: '',
         createFileError: '',
@@ -47,128 +45,6 @@ export default class DirectoryTree extends React.PureComponent {
         }
     }
     
-    renderDirStructure = (structure, level = 0, path = '/') => {
-        if (typeof structure === 'string') {
-            const extension = structure.split('.').reverse()[0]
-            const nodePath = `${path}${structure}`
-            const isDir = false
-            
-            return (
-                <div
-                    className={styles.FileWrapper}
-                    style={{ marginLeft: level*10 }}
-                    key={nodePath}
-                    onContextMenu={(e) => this.handleContextMenuOpen(e, path, structure, isDir)}
-                >
-                    <img
-                        className={styles.FileIcon}
-                        src={require(`../../assets/${ExtensionToIcon(extension)}`)}
-                        alt=""
-                    />
-                    
-                    <div className={styles.FileName}>
-                        {structure}
-                    </div>
-                </div>
-            )
-        }
-        
-        const tree = [];
-        
-        if (Array.isArray(structure)) {
-            const treePart = (
-                <div
-                    className={styles.DirectoryNodesWrapper}
-                    key={`nodeswrapper${path}`}
-                >
-                    {structure.map((node, index) => {
-                        const nodePath = `${path}${index}/`
-                        return this.renderDirStructure(node, level + 1, nodePath)
-                    })}
-                </div>
-            )
-            tree.push(treePart)
-        } else {
-            for(const dirName in structure) {
-                if (!structure.hasOwnProperty(dirName)) continue;
-                const subDir = structure[dirName]
-                const nodePath = `${path}${dirName}/`
-    
-                const isDir = true
-                
-                const isDirExpanded = Boolean(this.state.expandedDirs.find(expandedNodePath => {
-                    return expandedNodePath === nodePath
-                }))
-                
-                const isDirEmpty = subDir.length === 0
-                
-                const dirMarginLeft = { marginLeft: level*10 }
-        
-                const treePart = (
-                    <div key={nodePath}>
-                        <div
-                            className={styles.DirectoryWrapper}
-                            style={dirMarginLeft}
-                            onContextMenu={(e) => this.handleContextMenuOpen(e, nodePath, dirName, isDir)}
-                        >
-                            {this.renderDirectoryControls(isDirEmpty, isDirExpanded, nodePath)}
-                            
-                            <img
-                                className={styles.DirectoryIcon}
-                                src={folderIcon}
-                                alt=""
-                            />
-
-                            <div className={styles.DirectoryName}>
-                                {dirName}
-                            </div>
-                        </div>
-                        {isDirExpanded
-                             ? this.renderDirStructure(subDir, level + 1, nodePath)
-                             : null
-                        }
-                    </div>
-                )
-        
-                tree.push(treePart)
-            }
-        }
-        
-        return tree;
-    }
-    
-    renderDirectoryControls = (isEmpty, isExpanded, nodePath) => {
-        if (isEmpty) return null
-        
-        return isExpanded
-             ? this.renderCollapseSign(nodePath)
-             : this.renderExpandSign(nodePath)
-    }
-    
-    renderCollapseSign = (nodePath) => {
-        return (
-            <img
-                src={arrowUp}
-                alt='Collapse'
-                className={styles.CollapseIcon}
-                title='Collapse'
-                onClick={() => this.handleCollapse(nodePath)}
-            />
-        )
-    }
-    
-    renderExpandSign = (nodePath) => {
-        return (
-            <img
-                src={arrowDown}
-                alt='Expand'
-                className={styles.ExpandIcon}
-                title='Expand'
-                onClick={() => this.handleExpand(nodePath)}
-            />
-        )
-    }
-    
     
     handleCreateFile = () => {
         const { newFileName } = this.state
@@ -178,21 +54,19 @@ export default class DirectoryTree extends React.PureComponent {
             return
         }
         
-        const { editedNodeDirPath, newFileType } = this.state
+        const { editedNodeDirPath } = this.state
         
-        let extension = newFileType ? `.${newFileType}`  : ''
         let fileName = newFileName
+        let extension = ''
         
-        if (!extension) {
-            const nameArr = fileName.split('.')
-            const nameArrSize = nameArr.length
+        const nameArr = fileName.split('.')
+        const nameArrSize = nameArr.length
 
-            if (nameArrSize > 1) {
-                extension = `.${nameArr[nameArrSize - 1]}` // assume value after last dot is an extensions
-                fileName = nameArr.slice(0, nameArrSize - 1).join('.')
-            } else {
-                fileName = nameArr[0]
-            }
+        if (nameArrSize > 1) {
+            extension = `.${nameArr[nameArrSize - 1]}` // assume value after last dot is an extensions
+            fileName = nameArr.slice(0, nameArrSize - 1).join('.')
+        } else {
+            fileName = nameArr[0]
         }
         
         const fullFileName = `${fileName}${extension}`
@@ -212,20 +86,19 @@ export default class DirectoryTree extends React.PureComponent {
         this.setState(() => ({
             dirStructure: newDirStructure,
             isFileModalOpen: false,
-            newFileType: '',
             newFileName: ''
         }))
     }
     
     handleCreateDirectory = () => {
-        const { newDirectoryName } = this.state
+        const { newDirectoryName, editedNodeDirPath } = this.state
         
         if (!newDirectoryName) {
             this.setState(() => ({ createDirectoryError: 'Directory name can not be empty' }))
             return
         }
         
-        const nodeDirPathArr = this.state.editedNodeDirPath.split('/').filter(item => item)
+        const nodeDirPathArr = editedNodeDirPath.split('/').filter(item => Boolean(item))
         
         let prevDirStructure = JSON.parse(JSON.stringify(this.state.dirStructure))
         
@@ -273,7 +146,6 @@ export default class DirectoryTree extends React.PureComponent {
     }
     
     handleContextMenuOpen = (e, nodeDirPath, nodeName, isDir) => {
-        e.persist()
         e.preventDefault()
         const { pageX, pageY } = e;
         
@@ -300,11 +172,8 @@ export default class DirectoryTree extends React.PureComponent {
         this.setState(() => ({ isDirectoryModalOpen: true }))
     }
     
-    handleOpenNewFileModal = (newFileType = '') => {
-        this.setState(() => ({
-            isFileModalOpen: true,
-            newFileType
-        }))
+    handleOpenNewFileModal = () => {
+        this.setState(() => ({ isFileModalOpen: true }))
     }
     
     handleOpenDeleteModal = () => {
@@ -324,7 +193,6 @@ export default class DirectoryTree extends React.PureComponent {
         this.setState(() => ({
             isDirectoryModalOpen: false,
             isFileModalOpen: false,
-            newFileType: '',
             editedNodeDirPath: '',
             editedNodeName: '',
             isEditedNodeDir: false,
@@ -345,6 +213,129 @@ export default class DirectoryTree extends React.PureComponent {
         const name = e.target.value
         
         this.setState(() => ({ newDirectoryName: name, createDirectoryError: '' }))
+    }
+    
+    
+    renderDirStructure = (structure, level = 0, path = '/') => {
+        if (typeof structure === 'string') {
+            const extension = structure.split('.').reverse()[0]
+            const nodePath = `${path}${structure}`
+            const isDir = false
+            
+            return (
+                <div
+                    className={styles.FileWrapper}
+                    style={{ marginLeft: level*10 }}
+                    key={nodePath}
+                    onContextMenu={(e) => this.handleContextMenuOpen(e, path, structure, isDir)}
+                >
+                    <img
+                        className={styles.FileIcon}
+                        src={require(`../../assets/${extensionToIcon(extension)}`)}
+                        alt=""
+                    />
+                    
+                    <div className={styles.FileName}>
+                        {structure}
+                    </div>
+                </div>
+            )
+        }
+        
+        const tree = [];
+        
+        if (Array.isArray(structure)) {
+            const treePart = (
+                <div
+                    className={styles.DirectoryNodesWrapper}
+                    key={`nodeswrapper${path}`}
+                >
+                    {structure.map((node, index) => {
+                        const nodePath = `${path}${index}/`
+                        return this.renderDirStructure(node, level + 1, nodePath)
+                    })}
+                </div>
+            )
+            tree.push(treePart)
+        } else {
+            for(const dirName in structure) {
+                if (!structure.hasOwnProperty(dirName)) continue;
+                const subDir = structure[dirName]
+                const nodePath = `${path}${dirName}/`
+                
+                const isDir = true
+                
+                const isDirExpanded = Boolean(this.state.expandedDirs.find(expandedNodePath => {
+                    return expandedNodePath === nodePath
+                }))
+                
+                const isDirEmpty = subDir.length === 0
+                
+                const dirMarginLeft = { marginLeft: level*10 }
+                
+                const treePart = (
+                    <div key={nodePath}>
+                        <div
+                            className={styles.DirectoryWrapper}
+                            style={dirMarginLeft}
+                            onContextMenu={(e) => this.handleContextMenuOpen(e, nodePath, dirName, isDir)}
+                        >
+                            {this.renderDirectoryControls(isDirEmpty, isDirExpanded, nodePath)}
+    
+                            <img
+                                className={styles.DirectoryIcon}
+                                src={folderIcon}
+                                alt=""
+                            />
+
+                            <div className={styles.DirectoryName}>
+                                {dirName}
+                            </div>
+                        </div>
+                        {isDirExpanded
+                         ? this.renderDirStructure(subDir, level + 1, nodePath)
+                         : null
+                        }
+                    </div>
+                )
+                
+                tree.push(treePart)
+            }
+        }
+        
+        return tree;
+    }
+    
+    renderDirectoryControls = (isEmpty, isExpanded, nodePath) => {
+        if (isEmpty) return null
+        
+        return isExpanded
+               ? this.renderCollapseSign(nodePath)
+               : this.renderExpandSign(nodePath)
+    }
+    
+    renderCollapseSign = (nodePath) => {
+        return (
+            <img
+                src={arrowUp}
+                alt='Collapse'
+                className={styles.CollapseIcon}
+                title='Collapse'
+                onClick={() => this.handleCollapse(nodePath)}
+            />
+        )
+    }
+    
+    renderExpandSign = (nodePath) => {
+        return (
+            <img
+                src={arrowDown}
+                alt='Expand'
+                className={styles.ExpandIcon}
+                title='Expand'
+                onClick={() => this.handleExpand(nodePath)}
+            />
+        )
     }
     
     render() {

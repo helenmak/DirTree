@@ -5,7 +5,7 @@ import { fetchDirectoryStructure } from '../services/api'
 import sortDirStructure from '../utils/sortDirStructure'
 import nodesSorter      from '../utils/nodesSorter'
 
-import DirectoryTree from '../components/Main/DirectoryTree'
+import DirectoryTree from '../components/DirectoryTree/DirectoryTree'
 
 
 export default class MainPage extends React.PureComponent {

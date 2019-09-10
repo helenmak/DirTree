@@ -1,3 +1,8 @@
+:root {
+    --expand-icon-size: 18px;
+    --expand-icon-h-padding: 5px;
+}
+
 .DirectoryTreeWrapper {
     position: relative;
 }
@@ -24,15 +29,24 @@
     height: 20px;
 }
 
+.FileIcon {
+    padding-left: calc(var(--expand-icon-size) + var(--expand-icon-h-padding));
+}
+
 .ExpandIcon, .CollapseIcon {
-    padding-right: 5px;
+    height: var(--expand-icon-size);
+    padding-right: var(--expand-icon-h-padding);
     cursor: pointer;
 }
 
 @media screen and (max-width: 1080px) {
+    :root {
+        --expand-icon-size: 30px;
+        --expand-icon-h-padding: 5px;
+    }
+
     .ExpandIcon, .CollapseIcon {
-        padding: 4px 5px;
-        height: 30px;
+        padding: 4px var(--expand-icon-h-padding);
     }
 
     .FileWrapper {
