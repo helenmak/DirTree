@@ -25,6 +25,7 @@
 .MenuButton {
     padding: 2px;
     margin-left: 6px;
+    cursor: pointer;
 }
 
 .NewButton {

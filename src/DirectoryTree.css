@@ -5,6 +5,8 @@
 .DirectoryWrapper, .FileWrapper {
     display: flex;
     align-items: center;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 .DirectoryNodesWrapper {
@@ -22,6 +24,10 @@
     height: 20px;
 }
 
+.ExpandIcon, .CollapseIcon {
+    padding-right: 5px;
+    cursor: pointer;
+}
 
 @media screen and (max-width: 1080px) {
     .ExpandIcon, .CollapseIcon {
@@ -31,5 +37,9 @@
 
     .FileWrapper {
         padding: 2px 0;
+    }
+
+    .DirectoryWrapper {
+        padding: 0;
     }
 }
