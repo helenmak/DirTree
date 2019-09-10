@@ -1,4 +1,11 @@
 export const fetchDirectoryStructure = async () => {
-    const res = await fetch('../sources/DirStructure.json')
-    return res.json()
+    try {
+        const res = await fetch('../sources/DirStructure.json')
+
+        const dirStructure = await res.json()
+        
+        return { dirStructure }
+    } catch (err) {
+        return { err }
+    }
 }
