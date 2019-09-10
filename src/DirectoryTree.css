@@ -5,18 +5,31 @@
 .DirectoryWrapper, .FileWrapper {
     display: flex;
     align-items: center;
-    padding-top: 2px;
-    padding-bottom: 2px;
+}
+
+.DirectoryNodesWrapper {
+    margin-left: 10px;
 }
 
 .DirectoryName, .FileName {
     margin-left: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .DirectoryIcon, .FileIcon {
     height: 20px;
 }
 
-.ExpandIcon, .CollapseIcon {
-    padding-right: 5px;
+
+@media screen and (max-width: 1080px) {
+    .ExpandIcon, .CollapseIcon {
+        padding: 4px 5px;
+        height: 30px;
+    }
+
+    .FileWrapper {
+        padding: 2px 0;
+    }
 }

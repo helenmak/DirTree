@@ -17,7 +17,7 @@ export default class Modal extends React.PureComponent {
                     {this.props.children}
                 </div>
                 
-                <div className={styles.ModalFooter}>
+                <div>
                     <button
                         className={styles.ModalFooterBtn}
                         onClick={this.props.onOk}

@@ -1,5 +1,12 @@
+:root {
+    --context-menu-top: 0;
+    --context-menu-left: 0;
+}
+
 .ContextMenu {
     position: absolute;
+    top: var(--context-menu-top);
+    left: var(--context-menu-left);
     width: 260px;
     background: #3C3F41;
     border: 1px solid #5C5D5E;
@@ -28,4 +35,24 @@
 
 .NewButtonIcon {
     height: 21px;
+}
+
+@media screen and (max-width: 1080px) {
+    .ContextMenu {
+        position: fixed;
+        width: 80%;
+        max-width: 300px;
+        top: var(--context-menu-top);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .MenuButton {
+        padding: 5px;
+        margin-left: 6px;
+    }
+
+    .NewButtonIcon {
+        height: 25px;
+    }
 }

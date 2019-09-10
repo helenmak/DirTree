@@ -24,8 +24,6 @@ import nodesSorter      from './utils/nodesSorter'
 import styles           from './DirectoryTree.css'
 
 
-//TODO: separate functions for render nodes, separate components from context menu
-
 export default class DirectoryTree extends React.PureComponent {
     state = {
         dirStructure: null,
@@ -88,8 +86,7 @@ export default class DirectoryTree extends React.PureComponent {
         if (Array.isArray(structure)) {
             const treePart = (
                 <div
-                    className={styles.DirectoryNodes}
-                    style={{ marginLeft: 10 }}
+                    className={styles.DirectoryNodesWrapper}
                     key={`nodeswrapper${path}`}
                 >
                     {structure.map((node, index) => {
@@ -104,20 +101,22 @@ export default class DirectoryTree extends React.PureComponent {
                 if (!structure.hasOwnProperty(dirName)) continue;
                 const subDir = structure[dirName]
                 const nodePath = `${path}${dirName}/`
+    
+                const isDir = true
                 
                 const isDirExpanded = Boolean(this.state.expandedDirs.find(expandedNodePath => {
                     return expandedNodePath === nodePath
                 }))
                 
                 const isDirEmpty = subDir.length === 0
-    
-                const isDir = true
+                
+                const dirMarginLeft = { marginLeft: level*10 }
         
-                const treePart =  (
+                const treePart = (
                     <div key={nodePath}>
                         <div
                             className={styles.DirectoryWrapper}
-                            style={{ marginLeft: level*10 }}
+                            style={dirMarginLeft}
                             onContextMenu={(e) => this.handleContextMenuOpen(e, nodePath, dirName, isDir)}
                         >
                             {this.renderDirectoryControls(isDirEmpty, isDirExpanded, nodePath)}

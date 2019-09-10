@@ -24,6 +24,16 @@ export default class ContextMenu extends React.PureComponent {
             this.setState(() => ({ isNewSubmenuOpen: false }))
             document.removeEventListener('click', this.handleDocumentClick)
         }
+        
+        const { pageX, pageY } = this.props
+        
+        const isNewCoordinates = prevProps.pageY !== pageY
+            || prevProps.pageX !== pageX
+        
+        if (isNewCoordinates) {
+            document.documentElement.style.setProperty('--context-menu-top', `${pageY}px`)
+            document.documentElement.style.setProperty('--context-menu-left', `${pageX}px`)
+        }
     }
     
     handleDocumentClick = (event) => {
@@ -65,10 +75,6 @@ export default class ContextMenu extends React.PureComponent {
             <div
                 ref={(el) => this.contextMenu = el}
                 className={classList}
-                style={{
-                    top: this.props.pageY,
-                    left: this.props.pageX
-                }}
             >
                 <div
                     className={`${styles.MenuButton} ${styles.NewButton}`}
@@ -78,7 +84,7 @@ export default class ContextMenu extends React.PureComponent {
                     <img
                         src={arrowRight}
                         alt=""
-                        className={styles.MenuButton}
+                        className={styles.NewButtonIcon}
                     />
                 </div>
                 

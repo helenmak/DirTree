@@ -2,7 +2,7 @@
     position: absolute;
     top: 0;
     left: 263px;
-    width: 260px;
+    width: 100%;
     background: #3C3F41;
     border: 1px solid #5C5D5E;
 }
@@ -14,4 +14,17 @@
 .SubmenuButton {
     padding: 2px;
     margin-left: 6px;
+}
+
+@media screen and (max-width: 1080px) {
+    .Submenu {
+        position: absolute;
+        top: 110%;
+        left: 0;
+    }
+
+    .SubmenuButton {
+        padding: 5px;
+        margin-left: 6px;
+    }
 }
