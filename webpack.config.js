@@ -9,6 +9,9 @@ module.exports = {
     devtool: 'eval-source-map',
     
     entry: [
+        'react-hot-loader/patch',
+        'webpack-dev-server/client?http://0.0.0.0:3000',
+        'webpack/hot/only-dev-server',
         './src/index.js'
     ],
     
