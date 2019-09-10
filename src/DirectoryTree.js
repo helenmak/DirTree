@@ -337,7 +337,9 @@ export default class DirectoryTree extends React.PureComponent {
             editedNodeName: '',
             isEditedNodeDir: false,
             newFileName: '',
-            newDirectoryName: ''
+            newDirectoryName: '',
+            createFileError: '',
+            createDirectoryError: ''
         }))
     }
     
