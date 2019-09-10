@@ -8,10 +8,9 @@ import folderIcon from './assets/folder.svg'
 import arrowUp from './assets/arrowUp.svg'
 import arrowDown from './assets/arrowDown.svg'
 
-import ContextMenu from './ContextMenu'
-import NewFileModal      from './components/NewFileModal'
-import NewDirectoryModal from './components/NewDirectoryModal'
-import DeleteModal from './components/DeleteModal'
+import ContextMenu       from './ContextMenu'
+import NewNodeModal      from './components/NewNodeModal'
+import DeleteModal       from './components/DeleteModal'
 
 import addFile             from './utils/addFile'
 import checkDirectoryExist from './utils/checkDirectoryExist'
@@ -330,7 +329,7 @@ export default class DirectoryTree extends React.PureComponent {
         }))
     }
     
-    handleCreateModalCancel = () => {
+    handleNewNodeModalCancel = () => {
         this.setState(() => ({
             isDirectoryModalOpen: false,
             isFileModalOpen: false,
@@ -372,21 +371,21 @@ export default class DirectoryTree extends React.PureComponent {
                     onNewFile={this.handleOpenNewFileModal}
                     onDelete={this.handleOpenDeleteModal}
                 />
-                <NewFileModal
+                <NewNodeModal
                     isOpen={this.state.isFileModalOpen}
                     title='New file'
                     onChange={this.handleFileModalChange}
                     onOk={this.handleCreateFile}
-                    onCancel={this.handleCreateModalCancel}
+                    onCancel={this.handleNewNodeModalCancel}
                     error={this.state.createFileError}
                 />
                 
-                <NewDirectoryModal
+                <NewNodeModal
                     isOpen={this.state.isDirectoryModalOpen}
                     title='New directory'
                     onChange={this.handleDirectoryModalChange}
                     onOk={this.handleCreateDirectory}
-                    onCancel={this.handleCreateModalCancel}
+                    onCancel={this.handleNewNodeModalCancel}
                     error={this.state.createDirectoryError}
                 />
                 

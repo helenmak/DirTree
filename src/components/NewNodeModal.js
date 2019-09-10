@@ -4,7 +4,7 @@ import Modal from '../shared/Modal'
 import Input from '../shared/Input'
 
 
-export default class NewFileModal extends React.PureComponent {
+export default class NewNodeModal extends React.PureComponent {
     render() {
         return (
             <Modal
